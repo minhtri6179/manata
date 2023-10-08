@@ -1,32 +1,5 @@
--- -- name CreateAssignment :one
--- INSERT INTO assignments (
---         task_id,
---         user_id,
---         created_at,
---         updated_at
---     )
--- VALUES ($1, $2, $3, $4)
--- RETURNING (
---         task_id,
---         user_id,
---         created_at,
---         updated_at
---     );
--- -- name GetAssignment :one
--- SELECT task_id,
---     user_id,
---     created_at,
---     updated_at
--- FROM assignments
--- WHERE task_id = $1
---     AND user_id = $2;
--- -- name DeleteAssignment :one
--- DELETE FROM assignments
--- WHERE task_id = $1
---     AND user_id = $2
--- RETURNING (
---         task_id,
---         user_id,
---         created_at,
---         updated_at
---     );
+-- name: GetAssignment :one
+SELECT *
+FROM assignment
+WHERE task_id = $1
+    AND user_id = $2;

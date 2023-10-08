@@ -7,9 +7,8 @@ package db
 
 import (
 	"context"
-	"database/sql"
 
-	"github.com/sqlc-dev/pqtype"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createTask = `-- name: CreateTask :one
@@ -25,13 +24,13 @@ RETURNING id, title, description, image, status, created_at, updated_at
 
 type CreateTaskParams struct {
 	Title       string
-	Description sql.NullString
-	Image       pqtype.NullRawMessage
+	Description pgtype.Text
+	Image       []byte
 	Status      NullStatus
 }
 
 func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error) {
-	row := q.db.QueryRowContext(ctx, createTask,
+	row := q.db.QueryRow(ctx, createTask,
 		arg.Title,
 		arg.Description,
 		arg.Image,
@@ -57,7 +56,7 @@ RETURNING id, title, description, image, status, created_at, updated_at
 `
 
 func (q *Queries) DeleteTask(ctx context.Context, id int32) (Task, error) {
-	row := q.db.QueryRowContext(ctx, deleteTask, id)
+	row := q.db.QueryRow(ctx, deleteTask, id)
 	var i Task
 	err := row.Scan(
 		&i.ID,
@@ -78,7 +77,7 @@ WHERE id = $1
 `
 
 func (q *Queries) GetTask(ctx context.Context, id int32) (Task, error) {
-	row := q.db.QueryRowContext(ctx, getTask, id)
+	row := q.db.QueryRow(ctx, getTask, id)
 	var i Task
 	err := row.Scan(
 		&i.ID,
@@ -105,7 +104,7 @@ type ListTasksParams struct {
 }
 
 func (q *Queries) ListTasks(ctx context.Context, arg ListTasksParams) ([]Task, error) {
-	rows, err := q.db.QueryContext(ctx, listTasks, arg.Limit, arg.Offset)
+	rows, err := q.db.Query(ctx, listTasks, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -126,9 +125,6 @@ func (q *Queries) ListTasks(ctx context.Context, arg ListTasksParams) ([]Task, e
 		}
 		items = append(items, i)
 	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
@@ -148,6 +144,6 @@ type UpdateStatusParams struct {
 }
 
 func (q *Queries) UpdateStatus(ctx context.Context, arg UpdateStatusParams) error {
-	_, err := q.db.ExecContext(ctx, updateStatus, arg.Status, arg.ID)
+	_, err := q.db.Exec(ctx, updateStatus, arg.Status, arg.ID)
 	return err
 }

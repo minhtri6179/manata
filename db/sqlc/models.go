@@ -5,12 +5,10 @@
 package db
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"fmt"
-	"time"
 
-	"github.com/sqlc-dev/pqtype"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Status string
@@ -58,19 +56,19 @@ func (ns NullStatus) Value() (driver.Value, error) {
 
 type Assignment struct {
 	ID        int32
-	TaskID    sql.NullInt32
-	UserID    sql.NullInt32
-	CreatedAt sql.NullTime
+	TaskID    pgtype.Int4
+	UserID    pgtype.Int4
+	CreatedAt pgtype.Timestamp
 }
 
 type Task struct {
 	ID          int32
 	Title       string
-	Description sql.NullString
-	Image       pqtype.NullRawMessage
+	Description pgtype.Text
+	Image       []byte
 	Status      NullStatus
-	CreatedAt   sql.NullTime
-	UpdatedAt   sql.NullTime
+	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
 }
 
 type User struct {
@@ -80,6 +78,6 @@ type User struct {
 	Salt           string
 	FirstName      string
 	LastName       string
-	DateOfBirth    time.Time
+	DateOfBirth    pgtype.Timestamp
 	Email          string
 }

@@ -1,42 +1,24 @@
--- -- name CreateUser :one
--- INSERT INTO users (
---         name,
---         email,
---         created_at,
---         updated_at
---     )
--- VALUES ($1, $2, $3, $4)
--- RETURNING (
---         id,
---         name,
---         email,
---         created_at,
---         updated_at
---     );
--- -- name GetUser :one
--- SELECT id,
---     name,
---     email,
---     created_at,
---     updated_at
--- FROM users
--- WHERE id = $1;
--- -- name ListUsers :many
--- SELECT id,
---     name,
---     email,
---     created_at,
---     updated_at
--- FROM users
--- ORDER BY id ASC
--- LIMIT $1 OFFSET $2;
--- -- name DeleteUser :one
--- DELETE FROM users
--- WHERE id = $1
--- RETURNING (
---         id,
---         name,
---         email,
---         created_at,
---         updated_at
---     );
+-- name: CreateUser :one
+INSERT INTO "user" (
+        user_name,
+        hashed_password,
+        first_name,
+        last_name,
+        date_of_birth,
+        email
+    )
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING *;
+-- name: GetUser :one
+SELECT *
+FROM "user"
+WHERE user_name = $1;
+-- name: UpdateUser :exec
+UPDATE "user"
+SET email = $1,
+    first_name = $2,
+    last_name = $3
+WHERE user_name = $4;
+-- name: DeleteUser :exec
+DELETE FROM "user"
+WHERE user_name = $1;
