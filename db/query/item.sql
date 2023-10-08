@@ -1,62 +1,27 @@
--- name CreateTask :one
-INSERT INTO tasks (
-        name,
-        description,
-        status,
-        created_at,
-        updated_at
-    )
-VALUES ($1, $2, $3, $4, $5)
-RETURNING (
-        id,
-        name,
-        description,
-        status,
-        created_at,
-        updated_at
-    );
--- name GetTask :one
-SELECT id,
-    name,
-    description,
-    status,
-    created_at,
-    updated_at
-FROM tasks
+-- name: GetTask :one
+SELECT *
+FROM task
 WHERE id = $1;
--- name ListTasks :many
-SELECT id,
-    name,
-    description,
-    status,
-    created_at,
-    updated_at
-FROM tasks
+-- name: CreateTask :one
+INSERT INTO task (
+        title,
+        description,
+        image,
+        status
+    )
+VALUES ($1, $2, $3, $4)
+RETURNING *;
+-- name: ListTasks :many
+SELECT *
+FROM task
 ORDER BY id ASC
 LIMIT $1 OFFSET $2;
--- name UpdateTask :one
-UPDATE tasks
-SET name = $1,
-    description = $2,
-    status = $3,
-    updated_at = $4
-WHERE id = $5
-RETURNING (
-        id,
-        name,
-        description,
-        status,
-        created_at,
-        updated_at
-    );
--- name DeleteTask :one
-DELETE FROM tasks
+-- name: UpdateStatus :exec
+UPDATE task
+SET status = $1
+WHERE id = $2
+RETURNING *;
+-- name: DeleteTask :one
+DELETE FROM task
 WHERE id = $1
-RETURNING (
-        id,
-        name,
-        description,
-        status,
-        created_at,
-        updated_at
-    );
+RETURNING *;

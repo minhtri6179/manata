@@ -1,0 +1,42 @@
+-- -- name CreateUser :one
+-- INSERT INTO users (
+--         name,
+--         email,
+--         created_at,
+--         updated_at
+--     )
+-- VALUES ($1, $2, $3, $4)
+-- RETURNING (
+--         id,
+--         name,
+--         email,
+--         created_at,
+--         updated_at
+--     );
+-- -- name GetUser :one
+-- SELECT id,
+--     name,
+--     email,
+--     created_at,
+--     updated_at
+-- FROM users
+-- WHERE id = $1;
+-- -- name ListUsers :many
+-- SELECT id,
+--     name,
+--     email,
+--     created_at,
+--     updated_at
+-- FROM users
+-- ORDER BY id ASC
+-- LIMIT $1 OFFSET $2;
+-- -- name DeleteUser :one
+-- DELETE FROM users
+-- WHERE id = $1
+-- RETURNING (
+--         id,
+--         name,
+--         email,
+--         created_at,
+--         updated_at
+--     );
