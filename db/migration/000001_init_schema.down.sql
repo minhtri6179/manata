@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS "task";
+DROP TYPE IF EXISTS "status";
+DROP TABLE IF EXISTS "assignment";
+DROP TABLE IF EXISTS "user";
