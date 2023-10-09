@@ -18,8 +18,10 @@ ORDER BY id ASC
 LIMIT $1 OFFSET $2;
 -- name: UpdateStatus :exec
 UPDATE task
-SET status = $1
-WHERE id = $2
+SET title = $1,
+    description = $2,
+    status = $3
+WHERE id = $4
 RETURNING *;
 -- name: DeleteTask :one
 DELETE FROM task

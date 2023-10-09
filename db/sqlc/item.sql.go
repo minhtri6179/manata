@@ -133,17 +133,26 @@ func (q *Queries) ListTasks(ctx context.Context, arg ListTasksParams) ([]Task, e
 
 const updateStatus = `-- name: UpdateStatus :exec
 UPDATE task
-SET status = $1
-WHERE id = $2
+SET title = $1,
+    description = $2,
+    status = $3
+WHERE id = $4
 RETURNING id, title, description, image, status, created_at, updated_at
 `
 
 type UpdateStatusParams struct {
-	Status NullStatus
-	ID     int32
+	Title       string
+	Description pgtype.Text
+	Status      NullStatus
+	ID          int32
 }
 
 func (q *Queries) UpdateStatus(ctx context.Context, arg UpdateStatusParams) error {
-	_, err := q.db.Exec(ctx, updateStatus, arg.Status, arg.ID)
+	_, err := q.db.Exec(ctx, updateStatus,
+		arg.Title,
+		arg.Description,
+		arg.Status,
+		arg.ID,
+	)
 	return err
 }

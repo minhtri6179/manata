@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/pgtype"
+	"github.com/jackc/pgx/v5/pgtype"
 	db "github.com/minhtri6179/manata/db/sqlc"
+	"github.com/minhtri6179/manata/util"
 )
 
 type createUserRequest struct {
@@ -25,7 +26,7 @@ type userResponse struct {
 	CreatedAt         time.Time `json:"created_at"`
 }
 
-func (server *Server) createUser(ctx *gin.Context) {
+func (server *Server) registerUser(ctx *gin.Context) {
 	var req createUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

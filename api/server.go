@@ -41,7 +41,23 @@ func (server *Server) setupRouter() {
 	router.Use(cors.Default())
 
 	router.GET("/ping", server.pong)
+	v1 := router.Group("/v1")
+	{
+		user := v1.Group("/user")
+		{
+			user.POST("/register", server.registerUser)
 
+		}
+		task := v1.Group("/task")
+		{
+			task.POST("/create", server.createTask)
+			// task.GET("/list", server.listTask)
+			task.GET("/:id", server.getTask)
+			task.PUT("/:id", server.updateTask)
+			task.DELETE("/:id", server.deleteTask)
+		}
+
+	}
 	server.router = router
 }
 
