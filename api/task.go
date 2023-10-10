@@ -58,7 +58,7 @@ func (server *Server) getTask(ctx *gin.Context) {
 type UpdateTaskRequest struct {
 	Title       string      `json:"title" `
 	Description pgtype.Text `json:"description" `
-	Status      string      `json:"status" `
+	Status      db.Status   `json:"status" `
 }
 
 func (server *Server) updateTask(ctx *gin.Context) {
@@ -76,6 +76,7 @@ func (server *Server) updateTask(ctx *gin.Context) {
 		ID:          int32(id),
 		Title:       req.Title,
 		Description: req.Description,
+		Status:      db.Status(req.Status),
 	}
 	err = server.store.UpdateStatus(ctx, arg)
 	if err != nil {
@@ -83,32 +84,5 @@ func (server *Server) updateTask(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Update status successfully"})
-
-}
-
-func (server *Server) deleteTask(ctx *gin.Context) {
-	var req UpdateTaskRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	id, err := strconv.Atoi(ctx.Param("id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	DeletedStatus := "Doing"
-	arg := db.UpdateStatusParams{
-		ID:          int32(id),
-		Title:       req.Title,
-		Description: req.Description,
-		Status:      &UpdateTaskRequest{&req.Status: &DeletedStatus},
-	}
-	err = server.store.UpdateStatus(ctx, arg)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Delete successfully"})
 
 }

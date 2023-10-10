@@ -54,7 +54,7 @@ func (server *Server) setupRouter() {
 			// task.GET("/list", server.listTask)
 			task.GET("/:id", server.getTask)
 			task.PUT("/:id", server.updateTask)
-			task.DELETE("/:id", server.deleteTask)
+			// task.DELETE("/:id", server.deleteTask)
 		}
 
 	}
