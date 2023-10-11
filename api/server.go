@@ -56,6 +56,10 @@ func (server *Server) setupRouter() {
 			task.PUT("/:id", server.updateTask)
 			task.DELETE("/:id", server.deleteTask)
 		}
+		docs := v1.Group("/docs")
+		{
+			docs.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		}
 
 	}
 	server.router = router
