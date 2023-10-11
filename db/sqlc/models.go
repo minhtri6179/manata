@@ -17,6 +17,7 @@ const (
 	StatusDoing     Status = "Doing"
 	StatusDone      Status = "Done"
 	StatusInprocess Status = "Inprocess"
+	StatusDeleted   Status = "Deleted"
 )
 
 func (e *Status) Scan(src interface{}) error {

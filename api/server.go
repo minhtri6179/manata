@@ -51,10 +51,10 @@ func (server *Server) setupRouter() {
 		task := v1.Group("/task")
 		{
 			task.POST("/create", server.createTask)
-			// task.GET("/list", server.listTask)
+			task.GET("/list", server.listTask)
 			task.GET("/:id", server.getTask)
 			task.PUT("/:id", server.updateTask)
-			// task.DELETE("/:id", server.deleteTask)
+			task.DELETE("/:id", server.deleteTask)
 		}
 
 	}
