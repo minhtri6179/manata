@@ -35,7 +35,7 @@ func (server *Server) createTask(ctx *gin.Context) {
 
 	task, err := server.store.CreateTask(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, common.ErrCannotCreateEntity(task.Title, err))
 		return
 	}
 
@@ -45,16 +45,14 @@ func (server *Server) createTask(ctx *gin.Context) {
 func (server *Server) getTask(ctx *gin.Context) {
 
 	id, err := strconv.Atoi(ctx.Param("id"))
-	fmt.Println(id)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
 	task, err := server.store.GetTask(ctx, int32(id))
-
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, common.ErrEntityNotFound(task.Title, err))
 		return
 	}
 	ctx.JSON(http.StatusOK, task)
@@ -74,14 +72,14 @@ func (server *Server) updateTask(ctx *gin.Context) {
 	}
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, common.ErrCannotCreateEntity(req.Title, err))
 		return
 	}
 
 	status, err := StringToStatus(req.Status)
 	if err != nil {
 		fmt.Println(err)
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, common.ErrCannotCreateEntity(req.Title, err))
 		return
 	}
 
@@ -103,7 +101,7 @@ func (server *Server) updateTask(ctx *gin.Context) {
 	}
 	err = server.store.UpdateStatus(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, common.ErrCannotUpdateEntity(req.Title, err))
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Update status successfully"})
@@ -130,13 +128,14 @@ func (server *Server) deleteTask(ctx *gin.Context) {
 
 	err = server.store.UpdateStatus(ctx, args)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, common.ErrCannotDeleteEntity(task.Title, err))
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Delete task successfully"})
 }
 
 // Maybe handle paging for request params in the future
+
 func (server *Server) listTask(ctx *gin.Context) {
 	var paging common.Pagging
 	if err := ctx.ShouldBind(&paging); err != nil {
@@ -144,8 +143,6 @@ func (server *Server) listTask(ctx *gin.Context) {
 		return
 	}
 	paging.HandlePaging()
-	fmt.Print(paging.Limit)
-	fmt.Print(paging.Page)
 	arg := db.ListTasksParams{
 		Limit:  paging.Limit,
 		Offset: ((paging.Page - 1) * paging.Limit),
@@ -153,7 +150,7 @@ func (server *Server) listTask(ctx *gin.Context) {
 
 	tasks, err := server.store.ListTasks(ctx, arg)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, common.ErrCannotListEntity("Can not show", err))
 		return
 	}
 	ctx.JSON(http.StatusOK, tasks)
