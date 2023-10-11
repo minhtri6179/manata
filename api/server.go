@@ -8,6 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	db "github.com/minhtri6179/manata/db/sqlc"
 	"github.com/minhtri6179/manata/util"
+	swaggerFiles "github.com/swaggo/files"     // swagger embed files
+	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
 )
 
 // Server serves HTTP requests for our banking service.
