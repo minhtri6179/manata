@@ -2,10 +2,10 @@ package api
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/lib/pq"
 	db "github.com/minhtri6179/manata/db/sqlc"
 	"github.com/minhtri6179/manata/util"
 )
@@ -19,11 +19,10 @@ type createUserRequest struct {
 	Email       string           `json:"email" binding:"required,email"`
 }
 type userResponse struct {
-	Username          string    `json:"username"`
-	FullName          string    `json:"full_name"`
-	Email             string    `json:"email"`
-	PasswordChangedAt time.Time `json:"password_changed_at"`
-	CreatedAt         time.Time `json:"created_at"`
+	Username  string           `json:"username"`
+	FullName  string           `json:"full_name"`
+	Email     string           `json:"email"`
+	CreatedAt pgtype.Timestamp `json:"created_at"`
 }
 
 func (server *Server) registerUser(ctx *gin.Context) {
@@ -47,9 +46,62 @@ func (server *Server) registerUser(ctx *gin.Context) {
 	}
 	user, err := server.store.CreateUser(ctx, arg)
 	if err != nil {
+		if e, ok := err.(*pq.Error); ok {
+			switch e.Code.Name() {
+			case "unique_violation":
+				ctx.JSON(http.StatusForbidden, gin.H{"error": e.Message})
+				return
+			}
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": e.Message})
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, user)
+	user_res := userResponse{
+		Username:  user.UserName,
+		FullName:  user.FirstName + " " + user.LastName,
+		Email:     user.Email,
+		CreatedAt: user.CreatedAt,
+	}
 
+	ctx.JSON(http.StatusOK, user_res)
+
+}
+
+type loginUserRequest struct {
+	Username string `json:"username" binding:"required,alphanum"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+type loginUserResponse struct {
+	Username string `json:"username"`
+	Token    string `json:"token"`
+}
+
+func (server *Server) loginUser(ctx *gin.Context) {
+	var req loginUserRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	user, err := server.store.GetUser(ctx, req.Username)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := util.CheckPassword(req.Password, user.HashedPassword); err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+	token, err := server.tokenMaker.GenerateToken(user.UserName, server.config.AccessTokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	res := loginUserResponse{
+		Username: user.UserName,
+		Token:    token,
+	}
+	ctx.JSON(http.StatusOK, res)
 }

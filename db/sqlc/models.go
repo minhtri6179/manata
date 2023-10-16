@@ -76,9 +76,9 @@ type User struct {
 	ID             int32
 	UserName       string
 	HashedPassword string
-	Salt           string
 	FirstName      string
 	LastName       string
 	DateOfBirth    pgtype.Timestamp
 	Email          string
+	CreatedAt      pgtype.Timestamp
 }

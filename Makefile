@@ -19,10 +19,13 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "${DB_URL}" -verbose down
 
+migratedrop:
+	migrate -path db/migration -database "${DB_URL}" -verbose drop
+
 sqlc:
 	sqlc generate
 
 server:
 	go run main.go
 
-.PHONY: postgres createdb dropdb migrateup migratedown sqlc server
+.PHONY: postgres createdb dropdb migrateup migratedown migratedrop sqlc server

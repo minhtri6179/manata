@@ -1,12 +1,15 @@
 package api
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gin-contrib/cors"
 
 	"github.com/gin-gonic/gin"
 	db "github.com/minhtri6179/manata/db/sqlc"
+	"github.com/minhtri6179/manata/tokenprovider"
+	tokenJWT "github.com/minhtri6179/manata/tokenprovider/jwt"
 	"github.com/minhtri6179/manata/util"
 	swaggerFiles "github.com/swaggo/files"     // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
@@ -14,17 +17,22 @@ import (
 
 // Server serves HTTP requests for our banking service.
 type Server struct {
-	config util.Config
-	store  db.Store
-	router *gin.Engine
+	config     util.Config
+	store      db.Store
+	router     *gin.Engine
+	tokenMaker tokenprovider.TokenProvider
 }
 
 // NewServer creates a new HTTP server and set up routing.
 func NewServer(config util.Config, store db.Store) (*Server, error) {
-
+	tokenMaker, err := tokenJWT.NewJWTProvider(config.TokenSymmetricKey)
+	if err != nil {
+		return nil, fmt.Errorf("cưannot create token: %w", err)
+	}
 	server := &Server{
-		config: config,
-		store:  store,
+		config:     config,
+		store:      store,
+		tokenMaker: tokenMaker,
 	}
 
 	server.setupRouter()
@@ -45,12 +53,13 @@ func (server *Server) setupRouter() {
 	router.GET("/ping", server.pong)
 	v1 := router.Group("/v1")
 	{
-		user := v1.Group("/user")
+		user := v1.Group("/users")
 		{
 			user.POST("/register", server.registerUser)
+			user.POST("/login", server.loginUser)
 
 		}
-		task := v1.Group("/task")
+		task := v1.Group("/tasks")
 		{
 			task.POST("/create", server.createTask)
 			task.GET("/list", server.listTask)
