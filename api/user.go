@@ -91,7 +91,7 @@ func (server *Server) loginUser(ctx *gin.Context) {
 	}
 
 	if err := util.CheckPassword(req.Password, user.HashedPassword); err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": util.ErrInvalidPassword})
 		return
 	}
 	token, err := server.tokenMaker.GenerateToken(user.UserName, server.config.AccessTokenDuration)
