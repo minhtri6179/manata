@@ -6,21 +6,6 @@ import (
 	"github.com/minhtri6179/manata/common"
 )
 
-type Provider interface {
-	// GetToken returns a token for the given service account.
-	Generate(data TokenPayLoad, expity int) (Token, error)
-	// ValidateToken validates the given token and returns the service account.
-	Validate(token string) (TokenPayLoad, error)
-	SecrectKey() string
-}
-type TokenPayLoad interface {
-	UserId() int
-	Role() string
-}
-type Token interface {
-	GetToken() string
-}
-
 var (
 	ErrNotFound = common.NewCustomError(
 		errors.New("token not found"),
