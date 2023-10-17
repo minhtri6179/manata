@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
-
 	"github.com/gin-gonic/gin"
 	db "github.com/minhtri6179/manata/db/sqlc"
+	"github.com/minhtri6179/manata/middleware"
 	"github.com/minhtri6179/manata/tokenprovider"
 	tokenJWT "github.com/minhtri6179/manata/tokenprovider/jwt"
 	"github.com/minhtri6179/manata/util"
@@ -51,6 +51,7 @@ func (server *Server) setupRouter() {
 	router.Use(cors.Default())
 
 	router.GET("/ping", server.pong)
+
 	v1 := router.Group("/v1")
 	{
 		user := v1.Group("/users")
@@ -59,7 +60,7 @@ func (server *Server) setupRouter() {
 			user.POST("/login", server.loginUser)
 
 		}
-		task := v1.Group("/tasks")
+		task := v1.Group("/tasks").Use(middleware.AuthMiddleware(server.tokenMaker))
 		{
 			task.POST("/create", server.createTask)
 			task.GET("/list", server.listTask)
