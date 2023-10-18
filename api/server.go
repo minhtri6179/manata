@@ -72,7 +72,6 @@ func (server *Server) setupRouter() {
 		{
 			docs.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		}
-
 	}
 	server.router = router
 }
